@@ -22,5 +22,8 @@ class Camera {
         if (this.x + options.camera.width > options.width) {
             this.x = options.width - options.camera.width;
         }
+        if (this.y + options.camera.height > options.height) {
+            this.y = options.height - options.camera.height;
+        }
     }
 }

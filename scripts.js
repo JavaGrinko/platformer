@@ -1,17 +1,56 @@
 window.onload = function () {
     console.log("Страница загружена");
+    const buttonRetry = document.getElementById("retry");
+    buttonRetry.onclick = () => location.reload();
     function loadMap() {
         let blocks = [];
         for (let y = 0; y < map.length; y++) {
             for (let x = 0; x < map[0].length; x++) {
-                if (map[y][x] === 1) {
-                    blocks.push(new Wall({
+                switch (map[y][x]) {
+                    case 1: blocks.push(new Wall({
                         x: x * 60,
                         y: y * 60,
                         width: 60,
                         height: 60,
-                        color: '#000000'
+                        image: 'images/grass.jpg'
                     }));
+                        break;
+                    case 2: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/lava.gif',
+                        danger: true
+                    }));
+                        break;
+                    case 3: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/decor1.png',
+                        background: true
+                    }));
+                        break;
+                    case 4: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/ring.png',
+                        ring: true
+                    }));
+                        break;
+                    case 99: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/trophy.png',
+                        gameover: true
+                    }));
+                        break;
                 }
             }
         }
@@ -36,7 +75,7 @@ window.onload = function () {
     const playerSprite = new Sprite("images/player.png", {
         STAY: {
             x: 10,
-            y: 35,
+            y: 30,
             width: 46,
             height: 45,
             count: 8
@@ -47,6 +86,20 @@ window.onload = function () {
             width: 46,
             height: 45,
             count: 9
+        },
+        WALK_LEFT: {
+            x: 10,
+            y: 250,
+            width: 45,
+            height: 45,
+            count: 9
+        },
+        JUMP: {
+            x: 10,
+            y: 190,
+            width: 39,
+            height: 45,
+            count: 10
         }
     });
     const player = new Player({
@@ -57,8 +110,11 @@ window.onload = function () {
     });
     const playerPadding = 130;
 
-    player.y = options.height - player.height - playerPadding;
-    player.x = 50;
+    const startY = options.height - player.height - playerPadding;
+    const startX = 50;
+
+    player.y = startY;
+    player.x = startX;
 
     const camera = new Camera(player, options);
 
@@ -67,9 +123,9 @@ window.onload = function () {
 
     walls.push(new Wall({
         x: 0,
-        y: options.height - playerPadding,
+        y: options.height,
         width: options.width,
-        height: playerPadding,
+        height: 15,
         color: '#00ff00'
     }), new Wall({
         x: -15,
@@ -94,6 +150,19 @@ window.onload = function () {
     player.checkCollision = () => {
         for (let wall of walls) {
             if (player.collision(wall)) {
+                if (wall.danger) {
+                    player.kill();
+                    player.x = startX;
+                    player.y = startY;
+                } else if (wall.gameover) {
+                    player.gameover();
+                } else if (wall.background) {
+                    continue;
+                } else if (wall.ring) {
+                    walls = walls.filter(w => w != wall);
+                    player.takeRing();
+                    continue;
+                }
                 player.lastJumpTime = null;
                 return true;
             }
@@ -101,21 +170,23 @@ window.onload = function () {
         return false;
     }
 
-    const backgoundImage = new Image();
-    backgoundImage.src = "images/map.png";
-
+    const backgroundImage = new Image();
+    backgroundImage.src = "images/background.jpg";
+    const panel = new Panel();
+    panel.player = player;
     render();
     function render() {
         const { width, height } = options;
-        requestAnimationFrame(render);
+        if (player.isGameRunning) requestAnimationFrame(render);
         game.save();
         game.translate(-camera.x, -camera.y);
-        game.drawImage(backgoundImage, 0, 0, width, height);
-        player.render(game);
+        game.drawImage(backgroundImage, 0, 0, width, height);
         for (let wall of walls) {
             wall.render(game);
         }
+        player.render(game);
         camera.update();
         game.restore();
+        panel.render(game);
     }
 }

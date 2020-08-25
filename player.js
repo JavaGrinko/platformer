@@ -1,3 +1,8 @@
+const STAY = "STAY";
+const WALK_RIGHT = "WALK_RIGHT";
+const WALK_LEFT = "WALK_LEFT";
+const JUMP = "JUMP";
+
 class Player {
     constructor(options) {
         this.x = options.x;
@@ -12,6 +17,29 @@ class Player {
         this.keyboard = new THREEx.KeyboardState();
         this.g = 3;
         this.jumpF = this.g * 2;
+        this.animation = STAY;
+        this.lives = 3;
+        this.isGameRunning = true;
+        this.rings = 0;
+    }
+
+    takeRing() {
+        this.rings++;
+    }
+
+    gameover() {
+        this.isGameRunning = false;
+        let title = document.getElementById('title');
+        title.innerHTML = '<p style="color: green;">Вы победили!</p>';
+        document.getElementById('gameover').style['display'] = 'flex';
+    }
+
+    kill() {
+        this.lives--;
+        if (this.lives < 1) {
+            this.isGameRunning = false;
+            document.getElementById('gameover').style['display'] = 'flex';
+        }
     }
 
     forward() {
@@ -46,9 +74,12 @@ class Player {
         const { keyboard } = this;
         if (keyboard.pressed("d")) {
             this.forward();
-        }
-        if (keyboard.pressed("a")) {
+            this.animation = WALK_RIGHT;
+        } else if (keyboard.pressed("a")) {
             this.backward();
+            this.animation = WALK_LEFT;
+        } else {
+            this.animation = STAY;
         }
         if (keyboard.pressed("space")) {
             if (this.lastJumpTime) return;
@@ -61,6 +92,7 @@ class Player {
             const currentTime = new Date();
             if (currentTime - this.lastJumpTime < this.jumpTime) {
                 this.up();
+                this.animation = JUMP;
             }
         } 
     }
@@ -93,12 +125,12 @@ class Player {
     }
 
     render(canvas) {
-        const { color, x, y, width, height } = this;
+        const { color, x, y, width, height, animation } = this;
         if (this.sprite) {
             let { frameX, frameY, width: frameWidth, height: frameHeight, image } 
-                                                = this.sprite.getFrame("WALK_RIGHT");
+                                                = this.sprite.getFrame(animation);
             canvas.drawImage(image, frameX, frameY, frameWidth, 
-                frameHeight, x, y, width, height);
+                    frameHeight, x, y, width, height);
         } else {
             canvas.fillStyle = color;
             canvas.fillRect(x, y, width, height);

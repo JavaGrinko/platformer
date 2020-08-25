@@ -10,7 +10,7 @@ class Sprite {
 
     getFrame(type) {
         const typeConfig = this.config[type];
-        const { x, y, width, height, count } = typeConfig;
+        const { x, y, width, height, count, mirror } = typeConfig;
         const { frameState } = this;
         let currentFrame = frameState[type] ? frameState[type] : 0;
         let frameX = x + width * currentFrame;
@@ -22,6 +22,6 @@ class Sprite {
             }
             this.lastChangeFrameTime = new Date();
         }
-        return { frameX, frameY, width, height, image: this.sprite };
+        return { frameX, frameY, width, height, image: this.sprite, mirror };
     }
 }

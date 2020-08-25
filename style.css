@@ -9,3 +9,21 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+#gameover {
+    position: absolute;
+    background-color: burlywood;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#title {
+    color: rgb(43, 43, 219);
+}
+
+#retry {
+    padding: 8px;
+}
