@@ -8,7 +8,10 @@ class Wall {
         this.danger = options.danger;
         this.gameover = options.gameover;
         this.background = options.background;
+        this.foreground = options.foreground;
         this.ring = options.ring;
+        this.checkpoint = options.checkpoint;
+        this.portal = options.portal;
         if (options.image) {
             this.image = new Image();
             this.image.src = options.image;

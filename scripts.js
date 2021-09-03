@@ -42,6 +42,33 @@ window.onload = function () {
                         ring: true
                     }));
                         break;
+                    case 5: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/flag.png',
+                        checkpoint: true
+                    }));
+                        break;
+                    case 6: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/portal.png',
+                        portal: [120, 120]
+                    }));
+                        break;
+                    case 7: blocks.push(new Wall({
+                        x: x * 60,
+                        y: y * 60,
+                        width: 60,
+                        height: 60,
+                        image: 'images/water.png',
+                        foreground: true
+                    }));
+                        break;
                     case 99: blocks.push(new Wall({
                         x: x * 60,
                         y: y * 60,
@@ -110,8 +137,8 @@ window.onload = function () {
     });
     const playerPadding = 130;
 
-    const startY = options.height - player.height - playerPadding;
-    const startX = 50;
+    let startY = options.height - player.height - playerPadding;
+    let startX = 50;
 
     player.y = startY;
     player.x = startX;
@@ -162,8 +189,20 @@ window.onload = function () {
                     walls = walls.filter(w => w != wall);
                     player.takeRing();
                     continue;
+                } else if (wall.checkpoint) {
+                    startX = player.x;
+                    startY = player.y;
+                    continue;
+                } else if (wall.portal) {
+                    player.x = wall.portal[0];
+                    player.y = wall.portal[1];
+                    continue;
+                } else if (wall.foreground) {
+                    continue;
                 }
-                player.lastJumpTime = null;
+                if (player.collisionButtomCenter(wall)) {
+                    player.lastJumpTime = null;
+                }
                 return true;
             }
         }
@@ -182,9 +221,13 @@ window.onload = function () {
         game.translate(-camera.x, -camera.y);
         game.drawImage(backgroundImage, 0, 0, width, height);
         for (let wall of walls) {
+            if (wall.foreground) continue;
             wall.render(game);
         }
         player.render(game);
+        for (let wall of walls) {
+            if (wall.foreground) wall.render(game);
+        }
         camera.update();
         game.restore();
         panel.render(game);

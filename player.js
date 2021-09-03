@@ -31,6 +31,7 @@ class Player {
         this.isGameRunning = false;
         let title = document.getElementById('title');
         title.innerHTML = '<p style="color: green;">Вы победили!</p>';
+        title.innerHTML += `<p style="size: 12px;color: red;">Счет: ${this.rings}</p>`;
         document.getElementById('gameover').style['display'] = 'flex';
     }
 
@@ -95,6 +96,17 @@ class Player {
                 this.animation = JUMP;
             }
         } 
+    }
+
+    collisionButtomCenter(wall) {
+        const { x, y, width, height } = this;
+        const minX = x;
+        const maxX = x + width;
+        const maxY = y + height;
+        if (this.isPointInWall(minX + (maxX - minX) / 2, maxY, wall)) {
+            return true;
+        }
+        return false; 
     }
 
     collision(wall) {
